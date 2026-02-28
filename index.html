@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="ru" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Детейлинг: деньги → воронка → план</title>
+  <meta name="description" content="Наглядная модель: сколько нужно заявок и бюджета, чтобы получить нужное количество приезездов и прибыль в детейлинге." />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .glass { background: rgba(0,0,0,.55); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,.08); }
+    .grid-bg {
+      background:
+        radial-gradient(60rem 60rem at 30% -10%, rgba(34,211,238,.10), transparent 60%),
+        radial-gradient(60rem 60rem at 80% 10%, rgba(99,102,241,.10), transparent 60%),
+        radial-gradient(40rem 40rem at 50% 90%, rgba(16,185,129,.08), transparent 60%),
+        #050608;
+    }
+    .shadow-soft { box-shadow: 0 10px 30px rgba(0,0,0,.45); }
+    .mono { font-feature-settings: "tnum" 1, "lnum" 1; }
+    .hint { color: rgba(229,231,235,.8); }
+    .kpi { font-variant-numeric: tabular-nums; }
+    input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 999px; background: #22d3ee; border: 2px solid rgba(0,0,0,.65); }
+    input[type="range"] { accent-color: #22d3ee; }
+  </style>
+</head>
+<body class="antialiased grid-bg text-white font-sans">
+  <nav class="fixed w-full z-50 glass">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-2xl bg-white/10 grid place-items-center border border-white/10">∑</div>
+        <div class="leading-tight">
+          <div class="text-sm text-white/70">Детейлинг • экономика</div>
+          <div class="font-semibold tracking-tight">Деньги → Воронка → План</div>
+        </div>
+      </div>
+      <div class="hidden md:flex items-center gap-6 text-sm text-white/70">
+        <a href="#calc" class="hover:text-white">Калькулятор</a>
+        <a href="#funnel" class="hover:text-white">Воронка</a>
+        <a href="#plan" class="hover:text-white">Сценарии</a>
+        <a href="#faq" class="hover:text-white">FAQ</a>
+      </div>
+      <a href="#calc" class="px-4 py-2 rounded-xl bg-cyan-400 text-black font-semibold hover:bg-cyan-300 transition">Посчитать</a>
+    </div>
+  </nav>
+
+  <header class="pt-28 pb-14">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
+      <div class="grid lg:grid-cols-12 gap-10 items-center">
+        <div class="lg:col-span-7">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full glass text-xs text-white/70">
+            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+            На пальцах: где деньги и что контролировать
+          </div>
+          <h1 class="mt-4 text-3xl sm:text-5xl lg:text-[3.2rem] font-extrabold leading-[1.05] tracking-tight">
+            Бизнес — это <span class="text-cyan-300">приезды</span> и <span class="text-emerald-300">чек</span>.
+            Всё остальное — рычаги.
+          </h1>
+          <p class="mt-5 text-base sm:text-lg text-white/70 leading-relaxed max-w-2xl">
+            Чтобы появились машины, нужно: (1) реклама дала обращения, (2) менеджер довёл до записи, (3) сервис удержал чек.
+            Здесь видно в цифрах: сколько нужно заявок и бюджета для 10/30/50 приездов и какой будет результат по прибыли.
+          </p>
+
+          <div class="mt-7 flex flex-col sm:flex-row gap-3">
+            <a href="#calc" class="px-5 py-3 rounded-2xl bg-white text-black font-semibold hover:bg-white/90 transition shadow-soft">
+              Открыть калькулятор
+            </a>
+            <a href="#plan" class="px-5 py-3 rounded-2xl glass hover:bg-white/10 transition">
+              Сценарии 10/30/50
+            </a>
+          </div>
+
+          <div class="mt-8 grid sm:grid-cols-3 gap-3">
+            <div class="glass rounded-2xl p-4">
+              <div class="text-xs text-white/60">Что покупаем</div>
+              <div class="mt-1 font-semibold">Вероятность</div>
+              <div class="mt-1 text-sm text-white/70">реклама → заявки</div>
+            </div>
+            <div class="glass rounded-2xl p-4">
+              <div class="text-xs text-white/60">Что продаём</div>
+              <div class="mt-1 font-semibold">Приезды</div>
+              <div class="mt-1 text-sm text-white/70">заявка → запись</div>
+            </div>
+            <div class="glass rounded-2xl p-4">
+              <div class="text-xs text-white/60">Где прибыль</div>
+              <div class="mt-1 font-semibold">Чек × маржа</div>
+              <div class="mt-1 text-sm text-white/70">услуга → деньги</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="lg:col-span-5">
+          <div class="glass rounded-3xl p-5 sm:p-6 shadow-soft">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <div class="text-sm text-white/60">Быстрый пример</div>
+                <div class="mt-1 text-lg font-semibold">30 приездов в месяц</div>
+              </div>
+              <div class="text-xs text-white/60">по умолчанию</div>
+            </div>
+            <div class="mt-5 grid grid-cols-2 gap-3">
+              <div class="rounded-2xl bg-white/5 border border-white/10 p-4">
+                <div class="text-xs text-white/60">Средний чек</div>
+                <div class="mt-1 text-xl font-bold kpi mono"><span id="heroAov">70 000</span> ₽</div>
+              </div>
+              <div class="rounded-2xl bg-white/5 border border-white/10 p-4">
+                <div class="text-xs text-white/60">Маржа до рекламы</div>
+                <div class="mt-1 text-xl font-bold kpi mono"><span id="heroMarginPct">43</span>%</div>
+              </div>
+              <div class="rounded-2xl bg-white/5 border border-white/10 p-4">
+                <div class="text-xs text-white/60">Конверсия заявка→приезд</div>
+                <div class="mt-1 text-xl font-bold kpi mono"><span id="heroCr">5.0</span>%</div>
+              </div>
+              <div class="rounded-2xl bg-white/5 border border-white/10 p-4">
+                <div class="text-xs text-white/60">Цена заявки (CPL)</div>
+                <div class="mt-1 text-xl font-bold kpi mono"><span id="heroCpl">600</span> ₽</div>
+              </div>
+            </div>
+            <div class="mt-5 rounded-2xl bg-black/40 border border-white/10 p-4">
+              <div class="text-xs text-white/60">Итог (пример)</div>
+              <div class="mt-2 grid grid-cols-2 gap-3 text-sm">
+                <div class="text-white/70">Нужно заявок</div><div class="text-right font-semibold mono" id="heroLeads">600</div>
+                <div class="text-white/70">Бюджет на рекламу</div><div class="text-right font-semibold mono" id="heroSpend">360 000 ₽</div>
+                <div class="text-white/70">Прибыль (после рекламы)</div><div class="text-right font-semibold mono text-emerald-300" id="heroProfit">537 000 ₽</div>
+              </div>
+              <p class="mt-3 text-xs text-white/60">Это математика при заданных конверсиях и чеке.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section id="calc" class="py-14">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
+      <div class="flex items-end justify-between gap-6">
+        <div>
+          <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Калькулятор: сколько заявок и денег нужно.</h2>
+          <p class="mt-2 text-white/70 max-w-3xl">
+            Меняешь входные параметры — пересчитываются заявки, приезды, бюджет и прибыль. Сценарии 10/30/50 — одной кнопкой.
+          </p>
+        </div>
+        <div class="hidden sm:flex gap-2">
+          <button class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10" data-scenario="10">10 приездов</button>
+          <button class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10" data-scenario="30">30 приездов</button>
+          <button class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10" data-scenario="50">50 приездов</button>
+        </div>
+      </div>
+
+      <div class="mt-8 grid lg:grid-cols-12 gap-6 items-start">
+        <div class="lg:col-span-5 glass rounded-3xl p-5 sm:p-6">
+          <div class="flex items-center justify-between">
+            <div class="font-semibold">Входные параметры</div>
+            <button id="btnReset" class="text-xs text-white/70 hover:text-white underline">Сброс</button>
+          </div>
+
+          <div class="mt-5 space-y-4">
+            <div>
+              <div class="flex items-center justify-between text-sm">
+                <label class="text-white/80">Цель: приезды (шт)</label>
+                <input id="inJobs" type="number" min="1" step="1" class="w-28 text-right bg-white/5 border border-white/10 rounded-xl px-3 py-2" value="30">
+              </div>
+              <input id="rngJobs" type="range" min="1" max="120" value="30" class="w-full mt-2">
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="text-sm text-white/80">Средний чек, ₽</label>
+                <input id="inAov" type="number" min="0" step="100" class="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 mt-2" value="70000">
+              </div>
+              <div>
+                <label class="text-sm text-white/80">Маржа до рекламы, %</label>
+                <input id="inMarginPct" type="number" min="0" max="100" step="0.1" class="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 mt-2" value="43">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="text-sm text-white/80">Конверсия заявка→приезд, %</label>
+                <input id="inCr" type="number" min="0.1" max="100" step="0.1" class="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 mt-2" value="5">
+              </div>
+              <div>
+                <label class="text-sm text-white/80">Цена заявки (CPL), ₽</label>
+                <input id="inCpl" type="number" min="0" step="10" class="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 mt-2" value="600">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="text-sm text-white/80">Фикс-расходы, ₽/мес</label>
+                <input id="inFixed" type="number" min="0" step="1000" class="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 mt-2" value="0">
+                <div class="text-xs hint mt-1">аренда/админка/оклады (по желанию)</div>
+              </div>
+              <div>
+                <label class="text-sm text-white/80">Множитель отложенного спроса</label>
+                <input id="inLtv" type="number" min="1" step="0.1" class="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 mt-2" value="1">
+                <div class="text-xs hint mt-1">1 = считаем только “сейчас”. Множитель применяется к <span class="text-white/85">валовой прибыли</span>, затем вычитаются реклама и фикс.</div>
+              </div>
+            </div>
+
+            <div class="rounded-2xl bg-black/40 border border-white/10 p-4">
+              <div class="text-sm font-semibold">Что такое “отложенный спрос” (без магии)</div>
+              <div class="mt-2 text-sm text-white/70 leading-relaxed">
+                Часть клиентов покупает <span class="text-white/85">сразу</span>, а часть возвращается <span class="text-white/85">в течение года</span> — на доп.работы, обновление покрытия, повторную оклейку зон риска и т.п.
+                Это формирует основную прибыль у сильных центров. Множитель не “рисует деньги”: он просто учитывает, что валовая прибыль растянута во времени.
+              </div>
+              <div class="mt-2 text-xs text-white/60">Если данных по повторкам нет — ставь 1.0.</div>
+            </div>
+
+            <div class="rounded-2xl bg-white/5 border border-white/10 p-4">
+              <div class="text-sm font-semibold">Где чей рычаг</div>
+              <ul class="mt-2 text-sm text-white/70 space-y-1 list-disc list-inside">
+                <li><span class="text-white/85">CPL</span> — зона рекламы.</li>
+                <li><span class="text-white/85">CR</span> — зона продаж/контента/скриптов.</li>
+                <li><span class="text-white/85">Чек и маржа</span> — зона сервиса и допродаж.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="lg:col-span-7 space-y-6">
+          <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div class="glass rounded-3xl p-5">
+              <div class="text-xs text-white/60">Выручка</div>
+              <div class="mt-1 text-2xl font-extrabold mono kpi" id="outRevenue">—</div>
+              <div class="mt-1 text-xs text-white/60">приезды × чек</div>
+            </div>
+            <div class="glass rounded-3xl p-5">
+              <div class="text-xs text-white/60">Валовая прибыль (до рекламы)</div>
+              <div class="mt-1 text-2xl font-extrabold mono kpi" id="outGross">—</div>
+              <div class="mt-1 text-xs text-white/60">выручка × маржа</div>
+            </div>
+            <div class="glass rounded-3xl p-5">
+              <div class="text-xs text-white/60">Реклама</div>
+              <div class="mt-1 text-2xl font-extrabold mono kpi" id="outSpend">—</div>
+              <div class="mt-1 text-xs text-white/60">заявки × CPL</div>
+            </div>
+          </div>
+
+          <div class="glass rounded-3xl p-5 sm:p-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <div class="text-sm text-white/60">Воронка в штуках</div>
+                <div class="text-xl font-bold mt-1">Сколько нужно, чтобы получилось <span id="outJobsInline" class="text-cyan-300">—</span> приездов</div>
+              </div>
+              <div class="text-sm text-white/70">
+                CPA (стоимость приезда): <span class="font-semibold mono" id="outCpa">—</span>
+              </div>
+            </div>
+
+            <div class="mt-5 grid sm:grid-cols-3 gap-3">
+              <div class="rounded-2xl bg-black/40 border border-white/10 p-4">
+                <div class="text-xs text-white/60">Нужно заявок</div>
+                <div class="mt-1 text-2xl font-extrabold mono" id="outLeads">—</div>
+                <div class="mt-1 text-xs text-white/60">приезды / CR</div>
+              </div>
+              <div class="rounded-2xl bg-black/40 border border-white/10 p-4">
+                <div class="text-xs text-white/60">Будет приездов</div>
+                <div class="mt-1 text-2xl font-extrabold mono" id="outJobs">—</div>
+                <div class="mt-1 text-xs text-white/60">по заданной цели</div>
+              </div>
+              <div class="rounded-2xl bg-black/40 border border-white/10 p-4">
+                <div class="text-xs text-white/60">Прибыль (после рекламы и фикс.)</div>
+                <div class="mt-1 text-2xl font-extrabold mono text-emerald-300" id="outProfit">—</div>
+                <div class="mt-1 text-xs text-white/60">валовая − реклама − фикс.</div>
+              </div>
+            </div>
+
+            <div class="mt-5 rounded-2xl bg-white/5 border border-white/10 p-4">
+              <div class="text-sm font-semibold">Пошаговый расчёт</div>
+              <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-white/75 mono">
+                <div>1) Выручка = <span id="stepJobs">—</span> × <span id="stepAov">—</span> = <span id="stepRevenue">—</span></div>
+                <div>2) Валовая = <span id="stepRevenue2">—</span> × <span id="stepMargin">—</span> = <span id="stepGross">—</span></div>
+                <div>3) Заявки = <span id="stepJobs2">—</span> / <span id="stepCr">—</span> = <span id="stepLeads">—</span></div>
+                <div>4) Реклама = <span id="stepLeads2">—</span> × <span id="stepCpl">—</span> = <span id="stepSpend">—</span></div>
+                <div>5) Прибыль = <span id="stepGrossLtv2">—</span> − <span id="stepSpend2">—</span> − <span id="stepFixed">—</span> = <span id="stepProfit">—</span></div>
+                <div>6) Валовая с учётом отложенного спроса = <span id="stepGrossBase">—</span> × <span id="stepLtv">—</span> = <span id="stepGrossLtv">—</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass rounded-3xl p-5 sm:p-6">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-sm text-white/60">Чувствительность</div>
+                <div class="text-xl font-bold mt-1">Если конверсия изменится — что будет с прибылью</div>
+              </div>
+              <div class="text-sm text-white/70">CR: <span class="font-semibold mono" id="sensCrNow">—</span></div>
+            </div>
+
+            <div class="mt-5">
+              <label class="text-sm text-white/80">Диапазон CR, % (от 1 до 14)</label>
+              <input id="rngSens" type="range" min="4" max="14" value="10" class="w-full mt-2">
+              <div class="text-xs text-white/60 mt-1">Слайдер меняет “хуже/лучше” сценарий вокруг текущего CR.</div>
+            </div>
+
+            <div class="mt-5 grid sm:grid-cols-2 gap-3">
+              <div class="rounded-2xl bg-black/40 border border-white/10 p-4">
+                <div class="text-xs text-white/60">Плохой сценарий (CR ниже)</div>
+                <div class="mt-1 text-2xl font-extrabold mono" id="sensBadProfit">—</div>
+                <div class="mt-1 text-xs text-white/60">при CR = <span id="sensBadCr">—</span></div>
+              </div>
+              <div class="rounded-2xl bg-black/40 border border-white/10 p-4">
+                <div class="text-xs text-white/60">Хороший сценарий (CR выше)</div>
+                <div class="mt-1 text-2xl font-extrabold mono" id="sensGoodProfit">—</div>
+                <div class="mt-1 text-xs text-white/60">при CR = <span id="sensGoodCr">—</span></div>
+              </div>
+            </div>
+
+            <div class="mt-4 text-sm text-white/70">
+              Интерпретация: при том же CPL основная точка роста обычно CR (скорость ответа, скрипты, контент, оффер).
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="funnel" class="py-14">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
+      <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Воронка “на одном экране”.</h2>
+      <p class="mt-2 text-white/70 max-w-3xl">Не термины, а управляемые шаги: где денег не хватает и какой рычаг тянуть.</p>
+
+      <div class="mt-8 grid lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-8 glass rounded-3xl p-6">
+          <div class="grid sm:grid-cols-4 gap-3">
+            <div class="rounded-2xl bg-white/5 border border-white/10 p-4">
+              <div class="text-xs text-white/60">1) Реклама</div>
+              <div class="mt-2 text-sm text-white/70">даёт заявки по CPL</div>
+            </div>
+            <div class="rounded-2xl bg-white/5 border border-white/10 p-4">
+              <div class="text-xs text-white/60">2) Продажи</div>
+              <div class="mt-2 text-sm text-white/70">заявка → запись (CR)</div>
+            </div>
+            <div class="rounded-2xl bg-white/5 border border-white/10 p-4">
+              <div class="text-xs text-white/60">3) Сервис</div>
+              <div class="mt-2 text-sm text-white/70">чек и маржа</div>
+            </div>
+            <div class="rounded-2xl bg-white/5 border border-white/10 p-4">
+              <div class="text-xs text-white/60">4) Деньги</div>
+              <div class="mt-2 text-sm text-white/70">прибыль/убыток</div>
+            </div>
+          </div>
+
+          <div class="mt-6 rounded-2xl bg-black/40 border border-white/10 p-5">
+            <div class="text-sm font-semibold">Ключевые вопросы</div>
+            <ul class="mt-3 space-y-2 text-sm text-white/70 list-disc list-inside">
+              <li>Какая сейчас цена заявки (CPL) и сколько заявок реально приходит?</li>
+              <li>Какая конверсия “заявка → приезд” по факту?</li>
+              <li>Какой средний чек и маржа (что внутри маржи — фиксируем правила)?</li>
+              <li>Если денег не хватает: что меняем первым — CPL, CR или чек?</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="lg:col-span-4 glass rounded-3xl p-6">
+          <div class="text-sm text-white/60">Смысл в одной строке</div>
+          <div class="mt-2 text-xl font-extrabold leading-snug">
+            Чтобы было <span class="text-cyan-300">N приездов</span>, нужно <span class="text-emerald-300">N/CR заявок</span> и бюджет <span class="text-cyan-300">(N/CR)×CPL</span>.
+          </div>
+          <div class="mt-4 text-sm text-white/70">
+            Если при нормальном бюджете нет результата — часто проблема в CR (переписка/звонки/доведение до записи).
+          </div>
+          <a href="#calc" class="mt-5 inline-block w-full text-center px-4 py-3 rounded-2xl bg-cyan-400 text-black font-semibold hover:bg-cyan-300 transition">
+            Посчитать под себя
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="plan" class="py-14">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
+      <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Сценарии: 10 / 30 / 50 приездов.</h2>
+      <p class="mt-2 text-white/70 max-w-3xl">План: сколько заявок, какой бюджет и какая прибыль при текущих параметрах.</p>
+
+      <div class="mt-8 grid md:grid-cols-3 gap-4">
+        <div class="glass rounded-3xl p-6">
+          <div class="text-xs text-white/60">Сценарий</div>
+          <div class="mt-1 text-2xl font-extrabold">10 приездов</div>
+          <div class="mt-4 text-sm text-white/70">Нажми — калькулятор подставит цель.</div>
+          <button class="mt-5 w-full px-4 py-3 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/10" data-scenario="10">Применить</button>
+        </div>
+        <div class="glass rounded-3xl p-6 border border-cyan-300/20">
+          <div class="text-xs text-white/60">Сценарий</div>
+          <div class="mt-1 text-2xl font-extrabold">30 приездов</div>
+          <div class="mt-4 text-sm text-white/70">Обычно “операционная норма” для одного поста.</div>
+          <button class="mt-5 w-full px-4 py-3 rounded-2xl bg-cyan-400 text-black font-semibold hover:bg-cyan-300 transition" data-scenario="30">Применить</button>
+        </div>
+        <div class="glass rounded-3xl p-6">
+          <div class="text-xs text-white/60">Сценарий</div>
+          <div class="mt-1 text-2xl font-extrabold">50 приездов</div>
+          <div class="mt-4 text-sm text-white/70">Проверка мощности отдела продаж/производства.</div>
+          <button class="mt-5 w-full px-4 py-3 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/10" data-scenario="50">Применить</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq" class="py-14">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
+      <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">FAQ для собственника.</h2>
+      <div class="mt-8 grid lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-8 glass rounded-3xl p-6">
+          <div class="space-y-5">
+            <div>
+              <div class="font-semibold">“Почему прибыли может не быть, если реклама есть?”</div>
+              <div class="mt-1 text-sm text-white/70">
+                Наша прибыль — это разница между доходами и расходами. Всё.
+                Реклама рассказывает о центре людям: мы покупаем <span class="text-white/85">обращения</span>, а <span class="text-white/85">приезды</span> — это то, как менеджеры/админы умеют продавать.
+                Продаёте хорошо — при тех же расходах на рекламу вы зарабатываете больше. Продаёте плохо — расходы на рекламу выше, чистая прибыль ниже.
+              </div>
+            </div>
+            <div>
+              <div class="font-semibold">“Маржа 30–40% — это прибыль?”</div>
+              <div class="mt-1 text-sm text-white/70">
+                Нет. Маржа — это “до рекламы” и часто без фикс-расходов. Чтобы не спорить словами, добавь фикс-расходы и смотри операционную прибыль.
+              </div>
+            </div>
+            <div>
+              <div class="font-semibold">“А если я не хочу продавать, пусть сами приезжают!”</div>
+              <div class="mt-1 text-sm text-white/70">
+                “Не хотите — ну и оставайтесь в жопе” (с) Артемий Лебедев.
+                А если серьёзно: цель этого сайта — на цифрах показать, что чем лучше продаёте, тем больше чистой прибыли.
+                Чем хуже — тем меньше зарабатываете. Мы умеем продавать сами. И научим вас.
+              </div>
+            </div>
+
+            <div>
+              <div class="font-semibold">“Что такое продажа?”</div>
+              <div class="mt-1 text-sm text-white/70">
+                Продажа — это не “купи-купи”, а умение понять, что хочет клиент, и объяснить так, чтобы это решило его задачу — и он привёз машину и деньги.
+                Игнорировать клиентов, отвечать “прайсом” и пропадать — это удел колхозников и гаражей.
+                Более подробно — лично.
+              </div>
+            </div>
+
+            <div>
+              <div class="font-semibold">“Почему у нас получится? Были десятки маркетологов уже.”</div>
+              <div class="mt-1 text-sm text-white/70">
+                Я не маркетолог. Я смотрю на бизнес целиком, а не только на рекламу.
+                Ваш центр входит в топ 10% по России: есть имя, примеры работ, качество сервиса, контент — это база доверия, без неё реклама не окупается.
+                Значит реклама может окупаться — и вы, и я будем зарабатывать.
+                Я как хороший юрист: берусь за дело, только которое можно выиграть. С мелкими гаражными студиями магия не сработает — их удел “сарафан”.
+              </div>
+            </div>
+
+            <div>
+              <div class="font-semibold">“Где быстрее всего найти деньги?”</div>
+              <div class="mt-1 text-sm text-white/70">
+                Обычно сначала в CR (продажи): быстрее поднять конверсию, чем постоянно “докупать” лиды.
+                Второй рычаг — чек/маржа. Реклама — третий, если CPL уже адекватный.
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="lg:col-span-4 glass rounded-3xl p-6">
+          <div class="text-sm text-white/60">Что считать “правдой”</div>
+          <ul class="mt-3 text-sm text-white/70 space-y-2 list-disc list-inside">
+            <li>CR берём по факту: заявки → приезды.</li>
+            <li>Чек — по закрытым заказам, не по “среднему по прайсу”.</li>
+            <li>Маржа — по правилам (что внутри).</li>
+          </ul>
+          <div class="mt-5 text-xs text-white/60">Сайт статичный: заливается на GitHub Pages.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-14">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
+      <div class="glass rounded-3xl p-6 sm:p-8">
+        <div class="text-sm text-white/60">Финал</div>
+        <h3 class="mt-2 text-2xl sm:text-3xl font-extrabold tracking-tight">Ваш бизнес — это простая математика.</h3>
+        <div class="mt-4 text-white/70 leading-relaxed space-y-3">
+          <p>
+            Чтобы была <span class="text-emerald-300 font-semibold">прибыль</span> — нужно столько-то <span class="text-cyan-300 font-semibold">приездов</span> с таким-то <span class="text-emerald-300 font-semibold">чеком</span>.
+            Чтобы они были — нужно столько-то обращений. Чтобы получить обращения — нужно столько-то потратить на рекламу и продавать с таким-то показателем. Всё.
+          </p>
+          <p>
+            Нет волшебных маркетологов. Все маркетологи ПИ*ЯТ.
+            Чистая прибыль — это умение снижать расходы и повышать доходы. Всё.
+            Я не обещаю “магию”, но я умею приводить клиентов на оклейку и одновременно снижать расходы и повышать доходы.
+          </p>
+        </div>
+        <div class="mt-6 rounded-2xl bg-black/40 border border-white/10 p-5">
+          <div class="text-sm font-semibold">Что делать прямо сейчас</div>
+          <div class="mt-2 text-sm text-white/70">
+            1) Проставьте реальные цифры (чек/маржа/CR/CPL). 2) Посмотрите, где узкое место. 3) Поднимайте CR и чек — это самый быстрый рост прибыли.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <footer class="py-10 border-t border-white/10">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div class="text-sm text-white/60">© <span id="year"></span> Детейлинг • экономика</div>
+      <div class="text-sm text-white/60">Версия: вайбкод + калькулятор (статичный сайт)</div>
+    </div>
+  </footer>
+
+<script>
+  const fmtInt = (n) => (Math.round(n)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+  const fmtRub = (n) => fmtInt(n) + " ₽";
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const $ = (id) => document.getElementById(id);
+
+  const defaults = { jobs: 30, aov: 70000, marginPct: 43, crPct: 5, cpl: 600, fixed: 0, ltv: 1 };
+
+  function calc({jobs, aov, marginPct, crPct, cpl, fixed, ltv}) {
+    const jobsN = Math.max(1, Number(jobs) || 1);
+    const aovN = Math.max(0, Number(aov) || 0);
+    const margin = clamp((Number(marginPct) || 0) / 100, 0, 1);
+    const cr = clamp((Number(crPct) || 0) / 100, 0.0001, 1);
+    const cplN = Math.max(0, Number(cpl) || 0);
+    const fixedN = Math.max(0, Number(fixed) || 0);
+    const ltvN = Math.max(1, Number(ltv) || 1);
+
+    const revenue = jobsN * aovN;
+    const gross = revenue * margin;
+
+    // Отложенный спрос: часть денег приходит позже (повторы/допы), но магии нет — это те же клиенты, просто во времени.
+    // Множитель применяется к валовой прибыли (до рекламы), а уже потом вычитаются реклама и фикс.
+    const grossLtv = gross * ltvN;
+
+    const leads = jobsN / cr;
+    const leadsCeil = Math.ceil(leads);
+    const spend = leadsCeil * cplN;
+
+    const profit = grossLtv - spend - fixedN;
+    const cpa = spend / jobsN;
+
+    return { jobsN, aovN, margin, cr, cplN, fixedN, ltvN, revenue, gross, grossLtv, leadsCeil, spend, profit, cpa };
+  }
+
+  function render() {
+    const state = {
+      jobs: $("inJobs").value, aov: $("inAov").value, marginPct: $("inMarginPct").value,
+      crPct: $("inCr").value, cpl: $("inCpl").value, fixed: $("inFixed").value, ltv: $("inLtv").value
+    };
+    const r = calc(state);
+
+    $("outRevenue").textContent = fmtRub(r.revenue);
+    $("outGross").textContent = fmtRub(r.gross);
+    $("outSpend").textContent = fmtRub(r.spend);
+    $("outJobs").textContent = fmtInt(r.jobsN);
+    $("outJobsInline").textContent = fmtInt(r.jobsN);
+    $("outLeads").textContent = fmtInt(r.leadsCeil);
+    $("outProfit").textContent = fmtRub(r.profit);
+    $("outCpa").textContent = fmtRub(r.cpa);
+
+    $("stepJobs").textContent = fmtInt(r.jobsN);
+    $("stepAov").textContent = fmtInt(r.aovN);
+    $("stepRevenue").textContent = fmtRub(r.revenue);
+    $("stepRevenue2").textContent = fmtRub(r.revenue);
+    $("stepMargin").textContent = (r.margin*100).toFixed(1) + "%";
+    $("stepGross").textContent = fmtRub(r.gross);
+    $("stepJobs2").textContent = fmtInt(r.jobsN);
+    $("stepCr").textContent = (r.cr*100).toFixed(1) + "%";
+    $("stepLeads").textContent = fmtInt(r.leadsCeil);
+    $("stepLeads2").textContent = fmtInt(r.leadsCeil);
+    $("stepCpl").textContent = fmtInt(r.cplN);
+    $("stepSpend").textContent = fmtRub(r.spend);
+    $("stepGross2").textContent = fmtRub(r.gross);
+    $("stepGrossLtv2").textContent = fmtRub(r.grossLtv);
+    $("stepSpend2").textContent = fmtRub(r.spend);
+    $("stepFixed").textContent = fmtRub(r.fixedN);
+    $("stepProfit").textContent = fmtRub(r.profit);
+    $("stepGrossBase").textContent = fmtRub(r.gross);
+    $("stepLtv").textContent = r.ltvN.toFixed(1);
+    $("stepGrossLtv").textContent = fmtRub(r.grossLtv);
+
+    $("heroAov").textContent = fmtInt(r.aovN);
+    $("heroMarginPct").textContent = (r.margin*100).toFixed(0);
+    $("heroCr").textContent = (r.cr*100).toFixed(1);
+    $("heroCpl").textContent = fmtInt(r.cplN);
+
+    const hero = calc({...state, jobs: 30});
+    $("heroLeads").textContent = fmtInt(hero.leadsCeil);
+    $("heroSpend").textContent = fmtRub(hero.spend);
+    $("heroProfit").textContent = fmtRub(hero.profit);
+
+    $("sensCrNow").textContent = (r.cr*100).toFixed(1) + "%";
+    const spread = Number($("rngSens").value) || 10;
+    const badCr = clamp((r.cr*100) - spread/2, 1, 14);
+    const goodCr = clamp((r.cr*100) + spread/2, 1, 14);
+    const bad = calc({...state, crPct: badCr});
+    const good = calc({...state, crPct: goodCr});
+    $("sensBadCr").textContent = badCr.toFixed(1) + "%";
+    $("sensGoodCr").textContent = goodCr.toFixed(1) + "%";
+    $("sensBadProfit").textContent = fmtRub(bad.profit);
+    $("sensGoodProfit").textContent = fmtRub(good.profit);
+  }
+
+  function wire() {
+    $("year").textContent = new Date().getFullYear();
+    $("inJobs").addEventListener("input", () => { $("rngJobs").value = $("inJobs").value; render(); });
+    $("rngJobs").addEventListener("input", () => { $("inJobs").value = $("rngJobs").value; render(); });
+    ["inAov","inMarginPct","inCr","inCpl","inFixed","inLtv"].forEach(id => $(id).addEventListener("input", render));
+    $("rngSens").addEventListener("input", render);
+
+    document.querySelectorAll("[data-scenario]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const v = Number(btn.getAttribute("data-scenario"));
+        $("inJobs").value = v; $("rngJobs").value = v;
+        location.hash = "#calc";
+        render();
+      });
+    });
+
+    $("btnReset").addEventListener("click", () => {
+      $("inJobs").value = defaults.jobs; $("rngJobs").value = defaults.jobs;
+      $("inAov").value = defaults.aov;
+      $("inMarginPct").value = defaults.marginPct;
+      $("inCr").value = defaults.crPct;
+      $("inCpl").value = defaults.cpl;
+      $("inFixed").value = defaults.fixed;
+      $("inLtv").value = defaults.ltv;
+      render();
+    });
+
+    render();
+  }
+  wire();
+</script>
+</body>
+</html>
