@@ -1,0 +1,564 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Экономика детейлинг-центра — на пальцах</title>
+  <style>
+    :root{
+      --bg:#0b0f14; --card:#111827; --muted:#94a3b8; --text:#e5e7eb;
+      --line:#1f2937; --good:#22c55e; --bad:#ef4444; --warn:#f59e0b;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:linear-gradient(180deg,#070a0f 0%, #0b0f14 40%, #070a0f 100%); color:var(--text);
+      font-family:ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Liberation Sans", sans-serif;}
+    a{color:inherit}
+    .wrap{max-width:1100px;margin:0 auto;padding:24px 16px 80px;}
+    header{display:flex;gap:16px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;margin:8px 0 20px}
+    h1{font-size:28px;line-height:1.1;margin:0}
+    .sub{color:var(--muted);max-width:72ch;margin-top:8px;font-size:14px}
+    .grid{display:grid;grid-template-columns: 360px 1fr;gap:16px;align-items:start}
+    @media (max-width: 980px){ .grid{grid-template-columns:1fr} }
+    .card{background:rgba(17,24,39,.82); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden}
+    .card h2{margin:0;padding:16px 16px 0;font-size:16px}
+    .card .body{padding:16px}
+    .pillrow{display:flex;gap:8px;flex-wrap:wrap}
+    .pill{border:1px solid var(--line); padding:8px 10px; border-radius:999px; font-size:12px; color:var(--muted); background:rgba(2,6,23,.35)}
+    .pill b{color:var(--text); font-weight:600}
+    .inputs{display:flex;flex-direction:column;gap:12px}
+    .field{display:grid;grid-template-columns: 1fr 140px; gap:10px; align-items:center}
+    .field label{font-size:13px;color:var(--muted)}
+    .field input{width:100%; padding:10px 10px; border-radius:12px; border:1px solid var(--line);
+      background:rgba(2,6,23,.45); color:var(--text); outline:none}
+    .field input:focus{border-color:#334155}
+    .hint{font-size:12px;color:var(--muted); margin-top:-6px}
+    .toggle{display:flex;gap:10px;align-items:center;justify-content:space-between}
+    .toggle .tlabel{font-size:13px;color:var(--muted)}
+    .toggle input{transform:scale(1.1)}
+    .btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+    button{cursor:pointer;border:1px solid var(--line); background:rgba(2,6,23,.35); color:var(--text);
+      padding:10px 12px;border-radius:14px;font-size:13px}
+    button:hover{border-color:#334155}
+    button.primary{background:rgba(34,197,94,.12); border-color: rgba(34,197,94,.35)}
+    button.warn{background:rgba(245,158,11,.12); border-color: rgba(245,158,11,.35)}
+    button.ghost{background:transparent}
+    .kpis{display:grid;grid-template-columns: repeat(4,1fr); gap:12px}
+    @media (max-width: 980px){ .kpis{grid-template-columns: repeat(2,1fr);} }
+    .kpi{padding:14px;border-radius:16px;border:1px solid var(--line);background:rgba(2,6,23,.35)}
+    .kpi .name{font-size:12px;color:var(--muted)}
+    .kpi .val{font-size:20px;margin-top:6px;font-weight:700}
+    .kpi .meta{font-size:12px;color:var(--muted);margin-top:6px}
+    .kpi.good .val{color:var(--good)}
+    .kpi.bad .val{color:var(--bad)}
+    .kpi.warn .val{color:var(--warn)}
+    .story{display:flex;flex-direction:column;gap:14px}
+    .step{border:1px dashed rgba(148,163,184,.35); border-radius:18px; padding:14px; background:rgba(2,6,23,.25)}
+    .step h3{margin:0 0 8px;font-size:14px}
+    .row{display:grid;grid-template-columns: 1fr 26px 1fr 26px 1fr; gap:10px; align-items:center}
+    @media (max-width: 980px){ .row{grid-template-columns:1fr; } .arrow{display:none} }
+    .box{border:1px solid var(--line); background:rgba(17,24,39,.6); border-radius:16px; padding:12px}
+    .box .t{font-size:12px;color:var(--muted)}
+    .box .n{font-size:22px;font-weight:800;margin-top:6px}
+    .box .s{font-size:12px;color:var(--muted);margin-top:6px}
+    .arrow{opacity:.55; text-align:center; font-size:18px}
+    .fine{font-size:12px;color:var(--muted); line-height:1.45}
+    .split{display:grid;grid-template-columns: 1fr 1fr; gap:12px}
+    @media (max-width: 980px){ .split{grid-template-columns:1fr} }
+    .list{margin:0;padding-left:16px;color:var(--muted);font-size:13px;line-height:1.5}
+    canvas{width:100%;height:220px;background:rgba(2,6,23,.25);border:1px solid var(--line);border-radius:18px}
+    footer{margin-top:16px;color:var(--muted);font-size:12px}
+    .tag{display:inline-block;padding:4px 8px;border:1px solid var(--line);border-radius:999px;font-size:12px;color:var(--muted);background:rgba(2,6,23,.25)}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Бизнес в 1 формуле: <span class="tag">прибыль</span> = <span class="tag">кол-во машин</span> × <span class="tag">средний чек</span> − <span class="tag">расходы</span></h1>
+        <div class="sub">
+          Эта страница показывает простую причинно‑следственную цепочку:
+          <b>реклама</b> → <b>заявки</b> → <b>приезды</b> → <b>продажи</b> → <b>выручка</b> → <b>прибыль</b>.
+          Меняешь 5–6 параметров — сразу видно, сколько нужно заявок/приездов для цели (например, 10 или 30 машин).
+        </div>
+      </div>
+      <div class="pillrow" aria-label="быстрые подсказки">
+        <div class="pill"><b>Две ручки управления:</b> чек и конверсия</div>
+        <div class="pill"><b>Третья:</b> дисциплина по рекламе (CPL)</div>
+      </div>
+    </header>
+
+    <div class="grid">
+      <!-- Left: Inputs -->
+      <section class="card">
+        <h2>Параметры</h2>
+        <div class="body">
+          <div class="btns">
+            <button class="primary" id="preset10">Сценарий: 10 машин</button>
+            <button class="warn" id="preset30">Сценарий: 30 машин</button>
+            <button class="ghost" id="presetFree">Свободно</button>
+          </div>
+          <div class="inputs" style="margin-top:12px">
+            <div class="field">
+              <label>Цель по продажам (заказ‑нарядам), шт.</label>
+              <input id="targetSales" type="number" min="0" step="1" />
+            </div>
+
+            <div class="field">
+              <label>Средний чек, ₽</label>
+              <input id="avgCheck" type="number" min="0" step="1000" />
+            </div>
+            <div class="field">
+              <label>Прибыльность без маркетинга (валовая маржа), %</label>
+              <input id="marginPct" type="number" min="0" max="100" step="1" />
+            </div>
+
+            <div class="field">
+              <label>Цена заявки (CPL), ₽</label>
+              <input id="cpl" type="number" min="0" step="10" />
+            </div>
+
+            <div class="field">
+              <label>Конверсия «заявка → продажа», %</label>
+              <input id="crLeadToSalePct" type="number" min="0" max="100" step="0.1" />
+            </div>
+
+            <div class="field">
+              <label>ЗП/стоимость работы маркетинга, ₽</label>
+              <input id="salary" type="number" min="0" step="1000" />
+            </div>
+
+            <div class="field">
+              <label>Бюджет на рекламу, ₽</label>
+              <input id="budget" type="number" min="0" step="1000" />
+            </div>
+
+            <div class="toggle">
+              <div class="tlabel">Учитывать «отложенный спрос» (повторная выручка за год)</div>
+              <input id="useLtv" type="checkbox" />
+            </div>
+            <div class="field" id="ltvField">
+              <label>Коэффициент отложенного спроса (1 = нет)</label>
+              <input id="ltv" type="number" min="1" step="0.1" />
+            </div>
+
+            <div class="toggle" style="margin-top:6px">
+              <div class="tlabel">Показать «верх воронки» (показы/клики)</div>
+              <input id="useTop" type="checkbox" />
+            </div>
+            <div id="topBlock" style="display:none">
+              <div class="field">
+                <label>CPM (₽ за 1000 показов)</label>
+                <input id="cpm" type="number" min="0" step="10" />
+              </div>
+              <div class="field">
+                <label>CTR, %</label>
+                <input id="ctrPct" type="number" min="0" max="100" step="0.1" />
+              </div>
+              <div class="field">
+                <label>CR «клик → заявка», %</label>
+                <input id="crClickToLeadPct" type="number" min="0" max="100" step="0.1" />
+              </div>
+              <div class="hint">Если этих данных нет — блок можно выключить. Нижняя воронка (заявка→продажа) всё равно работает.</div>
+            </div>
+
+            <div class="fine" style="margin-top:6px">
+              Смысл: сначала решаем <b>сколько продаж/приездов нужно</b>.  
+              Потом считаем, сколько для этого нужно <b>заявок</b> и <b>бюджета</b>.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right: Story -->
+      <section class="story">
+        <div class="card">
+          <h2>1) Итоги по сценарию</h2>
+          <div class="body">
+            <div class="kpis">
+              <div class="kpi" id="kpiSales">
+                <div class="name">Продажи (заказ‑наряды)</div>
+                <div class="val" id="kSales">—</div>
+                <div class="meta">Это «сколько машин приехало и купило».</div>
+              </div>
+              <div class="kpi" id="kpiRevenue">
+                <div class="name">Выручка</div>
+                <div class="val" id="kRevenue">—</div>
+                <div class="meta">Продажи × средний чек.</div>
+              </div>
+              <div class="kpi" id="kpiGross">
+                <div class="name">Валовая прибыль (без маркетинга)</div>
+                <div class="val" id="kGross">—</div>
+                <div class="meta">Выручка × маржа.</div>
+              </div>
+              <div class="kpi" id="kpiNet">
+                <div class="name">Чистыми после рекламы и ЗП</div>
+                <div class="val" id="kNet">—</div>
+                <div class="meta">Валовая − бюджет − ЗП.</div>
+              </div>
+            </div>
+
+            <div class="split" style="margin-top:12px">
+              <div class="step">
+                <h3>Если цель — <span id="goalSalesLabel">—</span> продаж</h3>
+                <ul class="list">
+                  <li>нужно заявок: <b id="needLeads">—</b></li>
+                  <li>нужно бюджета на рекламу: <b id="needBudget">—</b></li>
+                  <li>с учётом ЗП маркетинга всего затрат: <b id="needTotalCost">—</b></li>
+                </ul>
+              </div>
+              <div class="step">
+                <h3>Главный контроль</h3>
+                <ul class="list">
+                  <li><b>конверсия</b> (как общаются/продают, как сделан контент, как отрабатывают заявки);</li>
+                  <li><b>средний чек</b> (пакеты, допы, апсейлы, правильная «витрина» в диалоге);</li>
+                  <li><b>CPL</b> (дисциплина по рекламе: креативы, аудитории, посадка, оффер).</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>2) Воронка «на пальцах»</h2>
+          <div class="body">
+            <div class="step">
+              <div class="row">
+                <div class="box">
+                  <div class="t">Реклама (бюджет)</div>
+                  <div class="n" id="fBudget">—</div>
+                  <div class="s">Сколько тратим, чтобы о нас узнали и написали.</div>
+                </div>
+                <div class="arrow">→</div>
+                <div class="box">
+                  <div class="t">Заявки (сообщения)</div>
+                  <div class="n" id="fLeads">—</div>
+                  <div class="s">Бюджет ÷ CPL.</div>
+                </div>
+                <div class="arrow">→</div>
+                <div class="box">
+                  <div class="t">Продажи (машины)</div>
+                  <div class="n" id="fSales">—</div>
+                  <div class="s">Заявки × CR «заявка→продажа».</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="step" id="topFunnelStep" style="display:none">
+              <h3>Верх воронки (необязательно)</h3>
+              <div class="row">
+                <div class="box">
+                  <div class="t">Показы</div>
+                  <div class="n" id="fImpr">—</div>
+                  <div class="s">Бюджет ÷ CPM × 1000.</div>
+                </div>
+                <div class="arrow">→</div>
+                <div class="box">
+                  <div class="t">Клики</div>
+                  <div class="n" id="fClicks">—</div>
+                  <div class="s">Показы × CTR.</div>
+                </div>
+                <div class="arrow">→</div>
+                <div class="box">
+                  <div class="t">Заявки</div>
+                  <div class="n" id="fLeads2">—</div>
+                  <div class="s">Клики × CR «клик→заявка».</div>
+                </div>
+              </div>
+              <div class="hint">Этот блок полезен, если собственник хочет понимать «сколько людей должно увидеть рекламу».</div>
+            </div>
+
+            <canvas id="chart"></canvas>
+            <div class="fine" style="margin-top:8px">
+              График показывает: при фиксированных <b>среднем чеке</b>, <b>марже</b>, <b>ЗП</b> и <b>CPL</b> —
+              сколько будет «чистыми» при разной конверсии из заявки в продажу.
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>3) Что чаще всего путают</h2>
+          <div class="body">
+            <div class="split">
+              <div class="step">
+                <h3>Миф: «маркетинг — это расход без гарантий»</h3>
+                <div class="fine">
+                  Гарантий нет ни у чего, кроме дисциплины по цифрам.  
+                  Если мы заранее знаем CPL и конверсию, то можем <b>планировать</b>:
+                  «нужно 30 машин» ⇒ считаем, сколько надо заявок и бюджета.  
+                  Дальше управляем тем, что контролируем: контент, продажи, обработка.
+                </div>
+              </div>
+              <div class="step">
+                <h3>Миф: «достаточно просто открыть центр»</h3>
+                <div class="fine">
+                  Рынок взрослеет: конкурентов больше, клиенты выбирают глазами и по коммуникации.  
+                  Поэтому цепочка стала обязательной: <b>реклама → продажи → загрузка</b>.
+                </div>
+              </div>
+            </div>
+
+            <div class="split" style="margin-top:12px">
+              <div class="step">
+                <h3>Как считать правильно</h3>
+                <ul class="list">
+                  <li>«Маржа» здесь — прибыль после прямых расходов (материалы/ФОТ мастеров/производственные затраты), <b>но без маркетинга</b>.</li>
+                  <li>Потом отдельно вычитаем <b>бюджет рекламы</b> и <b>ЗП/услугу</b>.</li>
+                  <li>Если хочешь «по‑взрослому» — добавляем фикс (аренда, админы, амортизация) отдельной строкой.</li>
+                </ul>
+              </div>
+              <div class="step">
+                <h3>Что даёт рост с 10 до 30 машин</h3>
+                <ul class="list">
+                  <li>Не «в 3 раза больше бюджет» автоматически.</li>
+                  <li>Если растёт чек/конверсия — бюджет растёт медленнее, а прибыль быстрее.</li>
+                  <li>Если падает конверсия (менеджеры/контент/воронка) — бюджет растёт быстрее, а прибыль «съедается».</li>
+                </ul>
+              </div>
+            </div>
+
+            <footer>Версия: <span id="ver"></span>.</footer>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+<script>
+(function(){
+  const $ = (id)=>document.getElementById(id);
+
+  function fmtInt(x){
+    if(!isFinite(x)) return "—";
+    const s = Math.round(x).toString();
+    return s.replace(/\B(?=(\d{3})+(?!\d))/g," ");
+  }
+  function fmtRub(x){ return fmtInt(x) + " ₽"; }
+
+  const defaults = {
+    targetSales: 10,
+    avgCheck: 110000,
+    marginPct: 30,
+    cpl: 800,
+    crLeadToSalePct: 2,
+    salary: 40000,
+    budget: 150000,
+    useLtv: true,
+    ltv: 2,
+    useTop: false,
+    cpm: 250,
+    ctrPct: 1.2,
+    crClickToLeadPct: 8
+  };
+
+  function loadDefaults(){
+    for(const k in defaults){
+      if($(k)){
+        if($(k).type === "checkbox") $(k).checked = defaults[k];
+        else $(k).value = defaults[k];
+      }
+    }
+    toggleBlocks();
+  }
+
+  function toggleBlocks(){
+    $("ltvField").style.display = $("useLtv").checked ? "grid" : "none";
+    $("topBlock").style.display = $("useTop").checked ? "block" : "none";
+    $("topFunnelStep").style.display = $("useTop").checked ? "block" : "none";
+  }
+
+  function calc(){
+    const targetSales = +$("targetSales").value || 0;
+    const avgCheck = +$("avgCheck").value || 0;
+    const marginPct = +$("marginPct").value || 0;
+    const cpl = +$("cpl").value || 0;
+    const crLeadToSale = (+$("crLeadToSalePct").value || 0) / 100;
+    const salary = +$("salary").value || 0;
+    const budget = +$("budget").value || 0;
+
+    const useLtv = $("useLtv").checked;
+    const ltv = Math.max(1, +$("ltv").value || 1);
+
+    // Lower funnel based on budget:
+    const leadsFromBudget = (cpl>0) ? (budget / cpl) : 0;
+    const salesFromBudget = leadsFromBudget * crLeadToSale;
+
+    // For "required" planning by target sales:
+    const needLeads = (crLeadToSale>0) ? (targetSales / crLeadToSale) : 0;
+    const needBudget = needLeads * cpl;
+    const needTotalCost = needBudget + salary;
+
+    // Revenue / profit:
+    const revenue = salesFromBudget * avgCheck;
+    const gross = revenue * (marginPct/100);
+    const net = gross - budget - salary;
+
+    // LTV variant (year)
+    const revenueLtv = useLtv ? (revenue * ltv) : revenue;
+    const grossLtv = revenueLtv * (marginPct/100);
+    const netLtv = grossLtv - budget - salary;
+
+    // KPI display: if LTV on, show also hint in meta
+    const kpiNet = $("kpiNet");
+    kpiNet.classList.remove("good","bad","warn");
+    const netShow = useLtv ? netLtv : net;
+    if(netShow > 0) kpiNet.classList.add("good");
+    else if(netShow < 0) kpiNet.classList.add("bad");
+    else kpiNet.classList.add("warn");
+
+    $("kSales").textContent = fmtInt(salesFromBudget);
+    $("kRevenue").textContent = fmtRub(useLtv ? revenueLtv : revenue);
+    $("kGross").textContent = fmtRub(useLtv ? grossLtv : gross);
+    $("kNet").textContent = fmtRub(netShow);
+
+    $("goalSalesLabel").textContent = fmtInt(targetSales);
+    $("needLeads").textContent = fmtInt(needLeads);
+    $("needBudget").textContent = fmtRub(needBudget);
+    $("needTotalCost").textContent = fmtRub(needTotalCost);
+
+    $("fBudget").textContent = fmtRub(budget);
+    $("fLeads").textContent = fmtInt(leadsFromBudget);
+    $("fSales").textContent = fmtInt(salesFromBudget);
+
+    // Top funnel (optional)
+    if($("useTop").checked){
+      const cpm = +$("cpm").value || 0;
+      const ctr = (+$("ctrPct").value || 0)/100;
+      const crClickToLead = (+$("crClickToLeadPct").value || 0)/100;
+      const impr = (cpm>0) ? (budget / cpm * 1000) : 0;
+      const clicks = impr * ctr;
+      const leads2 = clicks * crClickToLead;
+      $("fImpr").textContent = fmtInt(impr);
+      $("fClicks").textContent = fmtInt(clicks);
+      $("fLeads2").textContent = fmtInt(leads2);
+    }
+
+    drawChart({
+      avgCheck, marginPct, cpl, salary, budget, useLtv, ltv
+    });
+  }
+
+  function drawChart(p){
+    const canvas = $("chart");
+    const ctx = canvas.getContext("2d");
+    const dpr = window.devicePixelRatio || 1;
+    const cssW = canvas.clientWidth, cssH = canvas.clientHeight;
+    canvas.width = Math.round(cssW * dpr);
+    canvas.height = Math.round(cssH * dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+
+    // Data: CR from 1% to 14%
+    const xs = [];
+    for(let i=1;i<=14;i++){ xs.push(i/100); }
+    const leads = (p.cpl>0) ? (p.budget/p.cpl) : 0;
+
+    const ys = xs.map(cr=>{
+      const sales = leads*cr;
+      const revenue = sales*p.avgCheck;
+      const gross = revenue*(p.marginPct/100);
+      const net = gross - p.budget - p.salary;
+      const revenueL = p.useLtv ? revenue*p.ltv : revenue;
+      const grossL = revenueL*(p.marginPct/100);
+      const netL = grossL - p.budget - p.salary;
+      return p.useLtv ? netL : net;
+    });
+
+    // bounds
+    const yMin = Math.min(...ys, 0);
+    const yMax = Math.max(...ys, 0);
+    const pad = 26;
+    const W = cssW, H = cssH;
+    const x0 = pad, y0 = H-pad, x1=W-pad, y1=pad;
+
+    function xScale(i){ return x0 + (x1-x0)*(i/(xs.length-1)); }
+    function yScale(v){
+      if(yMax===yMin) return (y0+y1)/2;
+      return y0 - (y0-y1)*((v-yMin)/(yMax-yMin));
+    }
+
+    // background
+    ctx.clearRect(0,0,W,H);
+
+    // grid + axis
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = "rgba(148,163,184,.25)";
+    ctx.fillStyle = "rgba(148,163,184,.75)";
+    ctx.font = "12px ui-sans-serif, system-ui";
+    // horizontal lines
+    const lines = 4;
+    for(let i=0;i<=lines;i++){
+      const y = y1 + (y0-y1)*(i/lines);
+      ctx.beginPath(); ctx.moveTo(x0,y); ctx.lineTo(x1,y); ctx.stroke();
+      const val = yMax - (yMax-yMin)*(i/lines);
+      ctx.fillText((Math.round(val/1000)*1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g," "), 6, y+4);
+    }
+    // x labels
+    for(let i=0;i<xs.length;i+=3){
+      const x = xScale(i);
+      ctx.fillText(Math.round(xs[i]*100)+"%", x-8, H-8);
+    }
+
+    // zero line
+    const yz = yScale(0);
+    ctx.strokeStyle="rgba(245,158,11,.45)";
+    ctx.beginPath(); ctx.moveTo(x0,yz); ctx.lineTo(x1,yz); ctx.stroke();
+
+    // line
+    ctx.strokeStyle="rgba(34,197,94,.85)";
+    ctx.lineWidth=2;
+    ctx.beginPath();
+    ys.forEach((v,i)=>{
+      const x=xScale(i), y=yScale(v);
+      if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    });
+    ctx.stroke();
+
+    // points
+    ctx.fillStyle="rgba(34,197,94,.95)";
+    ys.forEach((v,i)=>{
+      const x=xScale(i), y=yScale(v);
+      ctx.beginPath(); ctx.arc(x,y,3,0,Math.PI*2); ctx.fill();
+    });
+
+    // title
+    ctx.fillStyle="rgba(229,231,235,.9)";
+    ctx.font="12px ui-sans-serif, system-ui";
+    ctx.fillText("Чистая прибыль vs конверсия (1–14%)", x0, 16);
+  }
+
+  function setPreset(sales){
+    $("targetSales").value = sales;
+    // планируемый бюджет под цель (чтобы собственник видел, что это вычисляемо)
+    const cpl = +$("cpl").value || 0;
+    const cr = (+$("crLeadToSalePct").value || 0) / 100;
+    const salary = +$("salary").value || 0;
+    if(cpl>0 && cr>0){
+      const needLeads = sales / cr;
+      const needBudget = needLeads * cpl;
+      $("budget").value = Math.round(needBudget);
+      // salary stays as is
+    }
+    calc();
+  }
+
+  // listeners
+  ["targetSales","avgCheck","marginPct","cpl","crLeadToSalePct","salary","budget","ltv","cpm","ctrPct","crClickToLeadPct"].forEach(id=>{
+    $(id).addEventListener("input", calc);
+  });
+  ["useLtv","useTop"].forEach(id=>{
+    $(id).addEventListener("change", ()=>{ toggleBlocks(); calc(); });
+  });
+
+  $("preset10").addEventListener("click", ()=>setPreset(10));
+  $("preset30").addEventListener("click", ()=>setPreset(30));
+  $("presetFree").addEventListener("click", ()=>calc());
+
+  // init
+  loadDefaults();
+  $("ver").textContent = new Date().toISOString().slice(0,10);
+  calc();
+})();
+</script>
+</body>
+</html>
