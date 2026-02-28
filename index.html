@@ -543,60 +543,60 @@
     };
     const r = calc(state);
 
-    $("outRevenue").textContent = fmtRub(r.revenue);
-    $("outGross").textContent = fmtRub(r.gross);
-    $("outSpend").textContent = fmtRub(r.spend);
-    $("outJobs").textContent = fmtInt(r.jobsN);
-    $("outJobsInline").textContent = fmtInt(r.jobsN);
-    $("outLeads").textContent = fmtInt(r.leadsCeil);
-    $("outProfit").textContent = fmtRub(r.profit);
-    $("outCpa").textContent = fmtRub(r.cpa);
+    safeSet("outRevenue", fmtRub(r.revenue));
+    safeSet("outGross", fmtRub(r.gross));
+    safeSet("outSpend", fmtRub(r.spend));
+    safeSet("outJobs", fmtInt(r.jobsN));
+    safeSet("outJobsInline", fmtInt(r.jobsN));
+    safeSet("outLeads", fmtInt(r.leadsCeil));
+    safeSet("outProfit", fmtRub(r.profit));
+    safeSet("outCpa", fmtRub(r.cpa));
 
-    $("stepJobs").textContent = fmtInt(r.jobsN);
-    $("stepAov").textContent = fmtInt(r.aovN);
-    $("stepRevenue").textContent = fmtRub(r.revenue);
-    $("stepRevenue2").textContent = fmtRub(r.revenue);
-    $("stepMargin").textContent = (r.margin*100).toFixed(1) + "%";
-    $("stepGross").textContent = fmtRub(r.gross);
-    $("stepJobs2").textContent = fmtInt(r.jobsN);
-    $("stepCr").textContent = (r.cr*100).toFixed(1) + "%";
-    $("stepLeads").textContent = fmtInt(r.leadsCeil);
-    $("stepLeads2").textContent = fmtInt(r.leadsCeil);
-    $("stepCpl").textContent = fmtInt(r.cplN);
-    $("stepSpend").textContent = fmtRub(r.spend);
-    $("stepGross2").textContent = fmtRub(r.gross);
+    safeSet("stepJobs", fmtInt(r.jobsN));
+    safeSet("stepAov", fmtInt(r.aovN));
+    safeSet("stepRevenue", fmtRub(r.revenue));
+    safeSet("stepRevenue2", fmtRub(r.revenue));
+    safeSet("stepMargin", (r.margin*100).toFixed(1) + "%");
+    safeSet("stepGross", fmtRub(r.gross));
+    safeSet("stepJobs2", fmtInt(r.jobsN));
+    safeSet("stepCr", (r.cr*100).toFixed(1) + "%");
+    safeSet("stepLeads", fmtInt(r.leadsCeil));
+    safeSet("stepLeads2", fmtInt(r.leadsCeil));
+    safeSet("stepCpl", fmtInt(r.cplN));
+    safeSet("stepSpend", fmtRub(r.spend));
+    safeSet("stepGross2", fmtRub(r.gross));
     safeSet("stepGrossLtv2", fmtRub(r.grossLtv));
-    $("stepSpend2").textContent = fmtRub(r.spend);
-    $("stepFixed").textContent = fmtRub(r.fixedN);
-    $("stepProfit").textContent = fmtRub(r.profit);
+    safeSet("stepSpend2", fmtRub(r.spend));
+    safeSet("stepFixed", fmtRub(r.fixedN));
+    safeSet("stepProfit", fmtRub(r.profit));
     safeSet("stepGrossBase", fmtRub(r.gross));
-    $("stepLtv").textContent = r.ltvN.toFixed(1);
+    safeSet("stepLtv", r.ltvN.toFixed(1));
     safeSet("stepGrossLtv", fmtRub(r.grossLtv));
 
-    $("heroAov").textContent = fmtInt(r.aovN);
-    $("heroMarginPct").textContent = (r.margin*100).toFixed(0);
-    $("heroCr").textContent = (r.cr*100).toFixed(1);
-    $("heroCpl").textContent = fmtInt(r.cplN);
+    safeSet("heroAov", fmtInt(r.aovN));
+    safeSet("heroMarginPct", (r.margin*100).toFixed(0));
+    safeSet("heroCr", (r.cr*100).toFixed(1));
+    safeSet("heroCpl", fmtInt(r.cplN));
 
     const hero = calc({...state, jobs: 30});
-    $("heroLeads").textContent = fmtInt(hero.leadsCeil);
-    $("heroSpend").textContent = fmtRub(hero.spend);
-    $("heroProfit").textContent = fmtRub(hero.profit);
+    safeSet("heroLeads", fmtInt(hero.leadsCeil));
+    safeSet("heroSpend", fmtRub(hero.spend));
+    safeSet("heroProfit", fmtRub(hero.profit));
 
-    $("sensCrNow").textContent = (r.cr*100).toFixed(1) + "%";
+    safeSet("sensCrNow", (r.cr*100).toFixed(1) + "%");
     const spread = Number($("rngSens").value) || 10;
     const badCr = clamp((r.cr*100) - spread/2, 1, 14);
     const goodCr = clamp((r.cr*100) + spread/2, 1, 14);
     const bad = calc({...state, crPct: badCr});
     const good = calc({...state, crPct: goodCr});
-    $("sensBadCr").textContent = badCr.toFixed(1) + "%";
-    $("sensGoodCr").textContent = goodCr.toFixed(1) + "%";
-    $("sensBadProfit").textContent = fmtRub(bad.profit);
-    $("sensGoodProfit").textContent = fmtRub(good.profit);
+    safeSet("sensBadCr", badCr.toFixed(1) + "%");
+    safeSet("sensGoodCr", goodCr.toFixed(1) + "%");
+    safeSet("sensBadProfit", fmtRub(bad.profit));
+    safeSet("sensGoodProfit", fmtRub(good.profit));
   }
 
   function wire() {
-    $("year").textContent = new Date().getFullYear();
+    safeSet("year", new Date().getFullYear());
     $("inJobs").addEventListener("input", () => { $("rngJobs").value = $("inJobs").value; render(); });
     $("rngJobs").addEventListener("input", () => { $("inJobs").value = $("rngJobs").value; render(); });
     ["inAov","inMarginPct","inCr","inCpl","inFixed","inLtv"].forEach(id => $(id).addEventListener("input", render));
@@ -624,7 +624,16 @@
 
     render();
   }
-  wire();
+  window.addEventListener("DOMContentLoaded", () => {
+    try { wire(); }
+    catch (e) {
+      console.error(e);
+      const box = document.createElement("div");
+      box.className = "fixed bottom-4 left-4 right-4 sm:right-auto sm:max-w-lg glass rounded-2xl p-4 text-sm";
+      box.innerHTML = "<div class='font-semibold'>Ошибка на странице</div><div class='mt-1 text-white/70'>Открой консоль (F12 → Console) и пришли скрин. Пока калькулятор не запустился.</div>";
+      document.body.appendChild(box);
+    }
+  });
 </script>
 </body>
 </html>
